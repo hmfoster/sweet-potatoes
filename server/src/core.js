@@ -1,20 +1,5 @@
 import {List,Map} from 'immutable';
 
-export function setTodos(state, todos){
-  return state.set('todos', Map(todos));
-};
-
-export function createTodo(title, context, priority, deadline, time){
-  var details = {};
-  details[title] = Map({context, priority, deadline, time});
-  return Map(details);
-}
-
-export function addTodo(state, newTodo){
-  return state.mergeIn(['todos'], newTodo);
-};
-
-
 function getUrgency(todo){
   const dayInMs = 24*60*60*1000;
   const timeUntil = todo.get('deadline').getTime() - (new Date()).getTime();
@@ -34,64 +19,71 @@ function getPriority(todos, todo){
   return thisTodo.get('priority') + getUrgency(thisTodo);
 };
 
-export function prioritize(state){
-  const todos = state.get('todos');
-  const list = Object.keys(todos.toJS()).sort(function(a,b){
+function prioritize(todos){
+  return Object.keys(todos.toJS()).sort(function(a,b){
     return getPriority(todos, b) - getPriority(todos, a);
   });
-  return state.set('list', List(list));
-}
+};
+  
 
-export function nextTask(state){
-  const list = state.get('list');
+export function setState(state, currentTodos){
+  const todos = currentTodos.map((todo) => {
+    if (todo.get('deadline').getTime() <= new Date().getTime()){
+      return todo.merge({'late': true});
+    }
+    else return todo;
+  });
+
+  const list = List(prioritize(todos));
+  
   return state.merge({
-    'nextTask' : list.first(), 
-    'list' : list.skip(1)
+    'todos' : Map(todos),
+    'list' : list.skip(1), 
+    'nextTodo' : list.first()
     });
-}
+};
 
-export function completeTodo(state, completedTodoTitle = state.get('nextTask')){
+export function addTodo(state, {title, priority, context, deadline, time}){
+  var details = {};
+  details[title] = Map({context, priority, deadline, time});
+  return state.mergeIn(['todos'], details);
+};
+
+export function completeTodo(state, completedTodoTitle = state.get('nextTodo')){
+  const todos = state.get('todos');
   const completedTodo = {};
-  completedTodo[completedTodoTitle] = state.getIn(['todos', completedTodoTitle]);
-  const interimState = state.mergeIn(['completedTodos'], completedTodo);
-  const nextState = interimState.deleteIn(['todos', completedTodoTitle]);
-
-  if (completedTodoTitle === state.get('nextTask')){
-    return nextTask(nextState);
-  } else {
-    const list = nextState.get('list');
-    return nextState.merge({'list': list.delete(list.indexOf(completedTodoTitle))});
-  }
+  completedTodo[completedTodoTitle] = todos.get(completedTodoTitle);
+  return setState(state.mergeIn(['completedTodos'], completedTodo), todos.delete(completedTodoTitle));
 }
 
 export function editTodo(state, todo, {
-                                        title, 
+                                        title = todo, 
                                         context = state.getIn(['todos', todo, 'context']), 
                                         priority = state.getIn(['todos', todo, 'priority']), 
                                         deadline = state.getIn(['todos', todo, 'deadline']), 
                                         time = state.getIn(['todos', todo, 'time'])
                                       }){
-  const todos = state.get('todos');
-  const todoDetails = state.getIn(['todos', todo]);
+  const newTodo = {};
+  newTodo[title] = {context, priority, deadline, time};
+  return setState(state, state.get('todos').delete(todo).merge(newTodo))
+}
 
-  let interimState;
-  if(title){
-    const list = state.get('list');
-    const nextTodo = state.get('nextTask') === todo ? title : state.get('nextTask');
+export function splitTodo(state, todo, now = new Date()){
+  const {time, deadline, priority, context} = state.getIn(['todos', todo]).toJS();
+  const numberSplits = Math.ceil(time/0.5);
+  const splitTimes = Math.round(time*100/numberSplits)/100;
+  const splitDates = (deadline.getTime() - now.getTime())/numberSplits;
+  const splitTodos = {};
 
-    const interimTodos = todos.delete(todo);
-    const newTodo = {};
-    newTodo[title] = todoDetails;
-    const newTodos = interimTodos.merge(newTodo);
-
-    const newList = list.splice(list.indexOf(todo),1, title);
-    
-    interimState = state.merge({
-      todos: newTodos,
-      list: newList,
-      nextTask : nextTodo
-    })
+  for (let i = 1; i<= numberSplits; i++){
+    splitTodos[todo + ' ' + i] = {
+      context,
+      priority,
+      deadline: new Date((new Date(now.getTime() + splitDates*(i))).setHours(0,0,0)),
+      time: splitTimes,
+    }
   }
-  const finalState = interimState ? interimState : state;
-  return finalState.mergeIn(['todos', title? title : todo], {context, priority, deadline, time});
+  
+  const todos = state.get('todos').delete(todo).merge(splitTodos);
+  return setState(state, todos);
 }
