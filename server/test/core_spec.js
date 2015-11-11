@@ -97,7 +97,9 @@ describe('application logic', () => {
         todos : Map({
           'Call Mom': call,
           Vaccuum : vaccuum
-        })
+        }), 
+        list: List(['Call Mom']),
+        nextTodo : 'Vaccuum'
       });
       expect(nextState).to.equal(expectedState);
     });
@@ -247,7 +249,8 @@ describe('application logic', () => {
             context : 'School',
             priority : 10,
             deadline : new Date(2015, 10, 7),
-            time : 0.5
+            time : 0.5, 
+            late: true
           }),
           'Essay 3' : Map({
             context : 'School',
@@ -297,7 +300,7 @@ describe('application logic', () => {
             priority : 10,
             deadline : new Date(2015, 10, 10),
             time : 0.4
-          }),
+          })
       }));
     });
   });

@@ -1,0 +1,21 @@
+
+{
+  "Vaccuum" : {
+    "context": "Chores", 
+    "priority": 10,
+    "deadline": "2015, 10, 9",
+    "time": 0.5
+  },
+  "Call Mom" : {
+    "context": "Family",
+    "priority": 0,
+    "deadline": "2015, 10, 14", 
+    "time": 1
+  },
+  "Plan Meeting": {
+    "context": "Work",
+    "priority": 10,
+    "deadline": "2015, 10, 8", 
+    "time": 0.25
+  }
+}

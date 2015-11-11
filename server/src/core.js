@@ -1,8 +1,10 @@
 import {List,Map} from 'immutable';
 
+export const INITIAL_STATE = Map();
+
 function getUrgency(todo){
   const dayInMs = 24*60*60*1000;
-  const timeUntil = todo.get('deadline').getTime() - (new Date()).getTime();
+  const timeUntil = new Date(todo.get('deadline')).getTime() - (new Date()).getTime();
   if (timeUntil < dayInMs){
     return 10;
   } else if (timeUntil < dayInMs*3){
@@ -28,7 +30,7 @@ function prioritize(todos){
 
 export function setState(state, currentTodos){
   const todos = currentTodos.map((todo) => {
-    if (todo.get('deadline').getTime() <= new Date().getTime()){
+    if (new Date(todo.get('deadline')).getTime() <= new Date().getTime()){
       return todo.merge({'late': true});
     }
     else return todo;
@@ -44,9 +46,10 @@ export function setState(state, currentTodos){
 };
 
 export function addTodo(state, {title, priority, context, deadline, time}){
-  var details = {};
+  let details = {};
   details[title] = Map({context, priority, deadline, time});
-  return state.mergeIn(['todos'], details);
+  const todos = state.get('todos').merge(details);
+  return setState(state, todos);
 };
 
 export function completeTodo(state, completedTodoTitle = state.get('nextTodo')){
