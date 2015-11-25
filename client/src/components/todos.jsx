@@ -1,8 +1,9 @@
 import React from 'react';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
+import {connect} from 'react-redux';
 import Todo from './todo';
 
-export default React.createClass({
+export const Todos = React.createClass({
   mixins: [PureRenderMixin],
   getList: function(){
     return this.props.todos.list || [];
@@ -29,3 +30,14 @@ export default React.createClass({
       </div>;
   }
 });
+
+function mapStateToProps(state) {
+  return {
+    todos: state.get('todos'),
+    list: state.get('list'),
+    nextTodo: state.get('nextTodo')
+  };
+}
+
+export const TodosContainer = connect(mapStateToProps)(Todos);
+
