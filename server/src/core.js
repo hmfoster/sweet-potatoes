@@ -75,7 +75,7 @@ export function splitTodo(state, todo, now = new Date()){
   const {time, deadline, priority, context} = state.getIn(['todos', todo]).toJS();
   const numberSplits = Math.ceil(time/0.5);
   const splitTimes = Math.round(time*100/numberSplits)/100;
-  const splitDates = (deadline.getTime() - now.getTime())/numberSplits;
+  const splitDates = ((new Date(deadline)).getTime() - now.getTime())/numberSplits;
   const splitTodos = {};
 
   for (let i = 1; i<= numberSplits; i++){

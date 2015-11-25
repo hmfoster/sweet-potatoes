@@ -3,19 +3,19 @@
   "Vaccuum" : {
     "context": "Chores", 
     "priority": 10,
-    "deadline": "2015, 10, 9",
+    "deadline": "2015, 11, 9",
     "time": 0.5
   },
   "Call Mom" : {
     "context": "Family",
     "priority": 0,
-    "deadline": "2015, 10, 14", 
+    "deadline": "2015, 11, 20", 
     "time": 1
   },
   "Plan Meeting": {
     "context": "Work",
     "priority": 10,
-    "deadline": "2015, 10, 8", 
+    "deadline": "2015, 11, 16", 
     "time": 0.25
   }
 }
