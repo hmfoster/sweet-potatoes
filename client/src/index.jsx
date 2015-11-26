@@ -1,10 +1,10 @@
 import React from 'react';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
 import ReactDOM from 'react-dom';
-import {Provider} from 'react-redux';
+import Router, {Route} from 'react-router';
 import {createStore} from 'redux';
 import reducer from './reducer';
-import Router, {Route} from 'react-router';
+import {Provider} from 'react-redux';
 import App from './components/app';
 import {TodosContainer} from './components/todos';
 
@@ -37,13 +37,14 @@ store.dispatch({
   }
 });
 
+
 const routes = <Route component={App}>
   <Route path="/" component={TodosContainer} />
 </Route>;
 
 ReactDOM.render(
   <Provider store={store}>
-    <Router>{routes}</Router>,
+    <Router>{routes}</Router>
   </Provider>,
   document.getElementById('app')
 );

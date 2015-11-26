@@ -13,7 +13,7 @@ export default React.createClass({
     return stars;
   },
   getTime: function(){
-    var hours = this.props.todo.time;
+    var hours = this.props.todo.get('time');
     if (hours>1){
       return hours + ' h';
     }
@@ -21,7 +21,7 @@ export default React.createClass({
     return minutes + ' min';
   },
   getDeadline: function(){
-    var days = Math.round((this.props.todo.deadline.getTime() - (new Date()).getTime())/(1000*60*60*24));
+    var days = Math.round((this.props.todo.get('deadline').getTime() - (new Date()).getTime())/(1000*60*60*24));
     if (days<0){
       return "PAST DUE";
     }
@@ -33,7 +33,7 @@ export default React.createClass({
         <Controls title={this.props.title}/>
         <span>{this.getPriority()}  </span>
         <span>{this.getTime()}  </span>
-        <span>{this.props.todo.context} </span>
+        <span>{this.props.todo.get('context')} </span>
         <span>{this.getDeadline()}</span>
     </div>;
   }
